@@ -1,0 +1,22 @@
+#input-box input{
+    display: flex;
+    direction: column;
+}
+.plan-list{
+    padding: 10px;
+    border: solid tomato 1px;
+}
+
+.plan-list span{
+    display: flex;
+    justify-content: center;
+}
+.plan-list button{
+    display: flex;
+    background: salmon;
+    justify-items: center;
+}
+
+*{
+    margin: 10px;
+}

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <script
+      crossorigin
+      src="https://unpkg.com/react@16/umd/react.production.min.js"
+    ></script>
+    <script
+      crossorigin
+      src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"
+    ></script>
+    <script
+      crossorigin
+      src="https://cdnjs.cloudflare.com/ajax/libs/react-router-dom/5.0.1/react-router-dom.js"
+    ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+    <script src="/acme_user.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+      integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <title>acme-vacation-planner</title>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <!-- Method 1  -->
+    <script type="text/babel">
+      const { Component } = React;
+      const { render } = ReactDOM;
+      //   const { HashRouter, Switch, Route, NavLink, Redirect } = ReactRouterDOM;
+      const root = document.querySelector("#root");
+
+    
+      class App extends Component {
+        constructor() {
+          super();
+          this.state = {
+            user: {
+              fullName: "test"
+            },
+            plans: [],
+            startDate: "",
+            endDate: "",
+            errorMessage: ""
+          };
+
+          this.createPlan = this.createPlan.bind(this);
+          this.remove = this.remove.bind(this);
+        }
+
+        async componentDidMount() {
+          const user = await fetchUser();
+          const plans = (await axios.get(`${API}/users/${user.id}/vacations`))
+            .data;
+          this.setState({ user, plans });
+        }
+
+        async remove(plan) {
+          const { user } = this.state;
+          const id = plan.id;
+          await axios.delete(`${API}/users/${user.id}/vacations/${id}`);
+          const plans = this.state.plans.filter(_plan => _plan.id !== id);
+          this.setState({ plans });
+        }
+
+        async createPlan() {
+          const { user, startDate, endDate } = this.state;
+          let errorMessage = "";
+
+          // if(moment(startDate).format("dddd MM/DD/YYYY") === 'Invalid date'){
+          //   console.log('error passing')
+          // }
+
+          if (startDate > endDate) {
+            errorMessage = `Error: end data is earlier than start date`;
+          } else if (
+            moment(startDate).format("MM/DD/YYYY") === "Invalid date" ||
+            moment(endDate).format("MM/DD/YYYY") === "Invalid date"
+          ) {
+            errorMessage = `Invalid input for type timestamp with time zone: "Invalid date"`;
+          } else {
+            const newPlan = (await axios.post(
+              `${API}/users/${user.id}/vacations`,
+              { startDate, endDate }
+            )).data;
+            const plans = [...this.state.plans, newPlan];
+
+            this.setState({ plans });
+          }
+
+          this.setState({ errorMessage });
+        }
+
+        render() {
+          const { user, plans, startDate, endDate, errorMessage } = this.state;
+          const { createPlan, remove } = this;
+          console.log(plans);
+          return (
+            <div>
+              <h1>Acme Vacation Planner for {user.id ? user.fullName : ""}</h1>
+              <div id="input-box">
+                <input
+                  type="date"
+                  onChange={ev => this.setState({ startDate: ev.target.value })}
+                  placeholder="select start date"
+                />
+                <input
+                  type="date"
+                  onChange={ev => this.setState({ endDate: ev.target.value })}
+                  placeholder="select end date"
+                />
+                <button class="btn" onClick={createPlan}>
+                  {" "}
+                  Create Vacation
+                </button>
+                <div>{errorMessage}</div>
+              </div>
+              <div id="list-box">
+                {// console.log({plans})
+
+                plans.map(plan => (
+                  <div class="plan-list">
+                    <span>
+                      {moment(plan.startDate).format("dddd MM/DD/YYYY")}
+                    </span>
+                    <span>to</span>
+                    <span>
+                      {moment(plan.endDate).format("dddd MM/DD/YYYY")}
+                    </span>
+                    <span>
+                      {Math.floor(
+                        (new Date(plan.endDate) - new Date(plan.startDate)) /
+                          1000 /
+                          60 /
+                          60 /
+                          24
+                      )}{" "}
+                      day(s)
+                    </span>
+                    <span>
+                      <button onClick={() => remove(plan)}>Remove</button>
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        }
+      }
+
+      render(<App />, root);
+    </script>
+  </body>
+</html>
