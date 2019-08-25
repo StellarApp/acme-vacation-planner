@@ -1,10 +1,33 @@
-#input-box input{
+#input-box input {
     display: flex;
     direction: column;
+    background: whitesmoke;
+    width: 100%;
+    margin-bottom: 5px;
+    
+}
+
+#input-box button {
+    width: 100%;
+    padding: 10px;
+    /* margin-bottom: 10px; */
+    margin-top: 10px;
+    background: tomato;
+    border: none;
+}
+
+#input-box{
+    align-items: center;
+    padding: 10px;
+    border:solid salmon 1px;
+}
+
+h1 {
+    padding: 10px;
 }
 .plan-list{
     padding: 10px;
-    border: solid tomato 1px;
+    border-bottom: solid tomato 1px;
 }
 
 .plan-list span{

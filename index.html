@@ -39,7 +39,6 @@
       //   const { HashRouter, Switch, Route, NavLink, Redirect } = ReactRouterDOM;
       const root = document.querySelector("#root");
 
-    
       class App extends Component {
         constructor() {
           super();
@@ -79,14 +78,13 @@
           // if(moment(startDate).format("dddd MM/DD/YYYY") === 'Invalid date'){
           //   console.log('error passing')
           // }
-
-          if (startDate > endDate) {
-            errorMessage = `Error: end data is earlier than start date`;
-          } else if (
+          if (
             moment(startDate).format("MM/DD/YYYY") === "Invalid date" ||
             moment(endDate).format("MM/DD/YYYY") === "Invalid date"
           ) {
             errorMessage = `Invalid input for type timestamp with time zone: "Invalid date"`;
+          } else if (startDate > endDate) {
+            errorMessage = `Error: end data is earlier than start date`;
           } else {
             const newPlan = (await axios.post(
               `${API}/users/${user.id}/vacations`,
@@ -102,32 +100,31 @@
 
         render() {
           const { user, plans, startDate, endDate, errorMessage } = this.state;
-          const { createPlan, remove } = this;
-          console.log(plans);
+          // const { createPlan, remove } = this;console.log(plans);
           return (
             <div>
               <h1>Acme Vacation Planner for {user.id ? user.fullName : ""}</h1>
               <div id="input-box">
                 <input
-                  type="date"
+                  id="start-date"
+                  // type="date"
                   onChange={ev => this.setState({ startDate: ev.target.value })}
-                  placeholder="select start date"
+                  placeholder="Enter start date"
                 />
                 <input
-                  type="date"
+                  id="end-date"
+                  // type="date"
                   onChange={ev => this.setState({ endDate: ev.target.value })}
-                  placeholder="select end date"
+                  placeholder="Enter end date"
                 />
-                <button class="btn" onClick={createPlan}>
+                <button class="btn-primary" onClick={createPlan}>
                   {" "}
                   Create Vacation
                 </button>
                 <div>{errorMessage}</div>
               </div>
               <div id="list-box">
-                {// console.log({plans})
-
-                plans.map(plan => (
+                {plans.map(plan => (
                   <div class="plan-list">
                     <span>
                       {moment(plan.startDate).format("dddd MM/DD/YYYY")}
